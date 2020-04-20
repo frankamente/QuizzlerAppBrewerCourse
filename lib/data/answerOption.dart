@@ -1,0 +1,1 @@
+enum AnswerOption { yes, no }
