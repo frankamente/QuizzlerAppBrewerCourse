@@ -13,7 +13,8 @@ part 'question_state.dart';
 class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   Map<int, Question> questionMap;
   int currentIndex;
-
+  Question lastQuestion;
+  List<bool> history = List();
   @override
   QuestionState get initialState {
     questionMap = getQuestionList().asMap();
@@ -25,6 +26,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   Stream<QuestionState> mapEventToState(
     QuestionEvent event,
   ) async* {
+    lastQuestion = questionMap[currentIndex];
     currentIndex++;
     if (currentIndex == questionMap.length) {
       currentIndex = 0;
@@ -57,9 +59,11 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   QuestionResponse getQuestionResponse(bool answer) {
     Question question = questionMap[currentIndex];
     AnswerOption answerOption = answer ? AnswerOption.yes : AnswerOption.no;
+    bool lastQuestionWasCorrect = lastQuestion.correctAnswer == answerOption;
+    history.add(lastQuestionWasCorrect);
     return QuestionResponse(
-      nextQuestionText: question.text,
-      lastQuestionWasCorrect: question.correctAnswer == answerOption,
-    );
+        nextQuestionText: question.text,
+        lastQuestionWasCorrect: lastQuestionWasCorrect,
+        history: history);
   }
 }

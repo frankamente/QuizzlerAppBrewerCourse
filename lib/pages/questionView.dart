@@ -77,16 +77,46 @@ class QuestionView extends StatelessWidget {
               ),
             ),
           ),
-          Row(
-            children: <Widget>[
-              Icon(
-                Icons.check,
-                color: Colors.green,
-              ),
-            ],
-          )
+          History()
         ],
       ),
     );
+  }
+}
+
+class History extends StatelessWidget {
+  const History({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final questionBloc = BlocProvider.of<QuestionBloc>(context);
+    return BlocBuilder<QuestionBloc, QuestionState>(
+        bloc: questionBloc,
+        builder: (context, state) {
+          if (state is QuestionInitial) {
+            return Row(
+              children: <Widget>[],
+            );
+          }
+          if (state is QuestionLoaded) {
+            List<Icon> history = List();
+            state.questionResponse.history.forEach((lastQuestionWasCorrect) {
+              history.add(Icon(
+                lastQuestionWasCorrect ? Icons.check : Icons.close,
+                color: lastQuestionWasCorrect ? Colors.green : Colors.red,
+              ));
+            });
+            return Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 14,
+              ),
+              child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(children: history)),
+            );
+          }
+        });
   }
 }
